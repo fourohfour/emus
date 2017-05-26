@@ -4,8 +4,10 @@ import sys
 from utils import *
 import tokeniser
 import parser
+
 import interface
 import markdown
+import text
 
 class Switch:
     last = "root"
@@ -82,6 +84,12 @@ if __name__ == "__main__":
                 else:
                     with open(switches["md"].first_value(), "w") as md_out:
                         markdown.MarkdownEmitter(md_out, emusrepr).emit()
+            elif "txt" in switches:
+                if not switches["txt"].has_nth_value(0):
+                    text.TextEmitter(sys.stdout, emusrepr).emit()
+                else:
+                    with open(switches["txt"].first_value(), "w") as txt_out:
+                        text.TextEmitter(txt_out, emusrepr).emit()
             else:
                 Error.warn("Emus", "No Target", "outputting data", "No target specififed")
 
