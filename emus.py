@@ -9,6 +9,26 @@ import interface
 import markdown
 import text
 
+help_text = """\
+
+Emus: Table compiler
+  usage: emus.py input_file [options]
+  options:
+      --md [output_file]    Output markdown to output_file
+                            or to stdout if output_file omitted
+
+      --txt [output_file]   Output as text to output_file
+                            or to stdout if output_file omitted
+
+      --help                Display this help message
+"""
+
+
+def display_help():
+    print(help_text)
+    sys.exit(0)
+
+
 class Switch:
     last = "root"
 
@@ -41,8 +61,51 @@ class Switch:
     def values(self):
         return iter(self.vals)
 
-if __name__ == "__main__":
+class SwitchManager:
+    def __init__(self, switches):
+        self.switches = switches
+        self.functions = {
+                "misc.root"    : ["root"]          ,
+                "misc.help"    : ["h", "help"]     ,
+                "emit.markdown": ["md", "markdown"],
+                "emit.text"    : ["txt", "text"]   ,
+        }
 
+    def check(self):
+        legal = [sw for fn in self.functions.values() for sw in fn]
+
+        for switch in self.switches:
+            if switch not in legal:
+                return Result.failure(switch)
+
+        return Result.success(len(self.switches))
+
+    def fulfilled(self, fn):
+        for fn_bind in self.functions[fn]:
+            if fn_bind in self.switches:
+                return True
+        return False
+
+    def fulfilling(self, fn):
+        for fn_bind in self.functions[fn]:
+            if fn_bind in self.switches:
+                return self.switches[fn_bind]
+        return None
+
+def emit(switch, emitter, emusrepr):
+    if not switch.has_nth_value(0):
+        emitter(sys.stdout, emusrepr).emit()
+    else:
+        try:
+            with open(switch.first_value(), "w") as emit_out:
+                emitter(emit_out, emusrepr).emit()
+        except IOError:
+            Error.fatal("Emus", "IO Error", "writing output", "Unable to open output file")
+            sys.exit(1)
+
+    sys.exit(0)
+
+def switch_manager():
     switches    = {"root": Switch("root")}
 
     for arg in sys.argv:
@@ -57,17 +120,23 @@ if __name__ == "__main__":
         else:
             switches[Switch.last].add_value(arg)
 
-    if "h" in switches or "help" in switches:
-        print("Emus: Table compiler")
-        print("  usage: emus.py input_file [options]")
-        print("  options:")
-        print("    --md [output_file] Output markdown to output_file")
-        print("                       or to stdout if output_file omitted")
-        print("    -h, --help         Display this help message")
-        sys.exit(0)
+    return SwitchManager(switches)
 
+if __name__ == "__main__":
 
-    files = list(filter(lambda v: not v.endswith(".py"), switches["root"].values()))
+    manager = switch_manager()
+
+    switch_check = manager.check()
+
+    if switch_check.is_failure():
+        Error.warn("Emus", "Argument Error", "parsing flags",
+                   "Flag '{}' does not exist -".format(switch_check.unwrap_err()))
+        display_help()
+
+    if manager.fulfilled("misc.help"):
+        display_help()
+
+    files = list(filter(lambda v: not v.endswith(".py"), manager.fulfilling("misc.root").values()))
 
     if not files:
         Error.fatal("Emus", "Argument Error", "parsing args", "No input specified")
@@ -78,26 +147,22 @@ if __name__ == "__main__":
             tables = parser.Parser.parse(tokens)
             emusrepr = interface.EmusRepresentation(tables)
 
-            if "md" in switches:
-                if not switches["md"].has_nth_value(0):
-                    markdown.MarkdownEmitter(sys.stdout, emusrepr).emit()
-                else:
-                    with open(switches["md"].first_value(), "w") as md_out:
-                        markdown.MarkdownEmitter(md_out, emusrepr).emit()
-            elif "txt" in switches:
-                if not switches["txt"].has_nth_value(0):
-                    text.TextEmitter(sys.stdout, emusrepr).emit()
-                else:
-                    with open(switches["txt"].first_value(), "w") as txt_out:
-                        text.TextEmitter(txt_out, emusrepr).emit()
+            if manager.fulfilled("emit.markdown"):
+                emit(manager.fulfilling("emit.markdown"), markdown.MarkdownEmitter, emusrepr)
+
+            if manager.fulfilled("emit.text"):
+                emit(manager.fulfilling("emit.text"), text.TextEmitter, emusrepr)
+
             else:
                 Error.warn("Emus", "No Target", "outputting data", "No target specififed")
+                display_help()
 
     except FileNotFoundError:
         Error.fatal("Emus", "Argument Error", "reading input", "Input file not found")
+        sys.exit(1)
 
     except IOError:
         Error.fatal("Emus", "IO Error", "reading input", "Unable to open input file")
-
+        sys.exit(1)
 
 

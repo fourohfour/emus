@@ -4,18 +4,18 @@ class Error:
     @staticmethod
     def fatal(process, error, action, message):
         print("[ERROR] [{}] {}".format(process, error))
-        print(".......{} while {}".format(message, action))
+        print("        {} while {}".format(message, action))
         sys.exit(1)
 
     @staticmethod
     def warn(process, warning, action, message):
         print("[WARNING] [{}] {}".format(process, warning))
-        print(".........{} while {}".format(message, action))
+        print("          {} while {}".format(message, action))
 
     @staticmethod
     def info(process, info, action, message):
         print("[INFO][{}] {}".format(process, info))
-        print("......{} while {}".format(message, action))
+        print("      {} while {}".format(message, action))
 
 class Result:
     def __init__(self, state, value):
