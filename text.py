@@ -2,9 +2,10 @@ import interface
 
 class TableWidth:
     FIRST_COL = -1
+    MIN_COL   = 3
 
     def __init__(self, table):
-        col_widths = {TableWidth.FIRST_COL: 0}
+        col_widths = {TableWidth.FIRST_COL: TableWidth.MIN_COL}
 
         for row in table.rows():
             row_name = str(row)
@@ -13,7 +14,7 @@ class TableWidth:
 
         for col in table.columns():
             col_name = str(col)
-            col_widths[col_name] = len(col_name)
+            col_widths[col_name] = len(col_name) if len(col_name) > TableWidth.MIN_COL else TableWidth.MIN_COL
             for row, value in col:
                 if len(str(value)) > col_widths[col_name]:
                     col_widths[col_name] = len(str(value))
