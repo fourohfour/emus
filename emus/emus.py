@@ -1,18 +1,11 @@
-#!/usr/bin/python3.5
-
 import sys
-from utils import *
-import tokeniser
-import parser
-
-import interface
-import markdown
-import text
+from .utils import *
+from . import tokeniser, parser, interface, markdown, text
 
 help_text = """\
 
-Emus: Table compiler
-  usage: emus.py input_file [options]
+Emus: Table Compiler
+  usage: emus.py <input_file> (options)
   options:
       --md [output_file]    Output markdown to output_file
                             or to stdout if output_file omitted
@@ -122,8 +115,7 @@ def switch_manager():
 
     return SwitchManager(switches)
 
-if __name__ == "__main__":
-
+def main():
     manager = switch_manager()
 
     switch_check = manager.check()
@@ -136,10 +128,11 @@ if __name__ == "__main__":
     if manager.fulfilled("misc.help"):
         display_help()
 
-    files = list(filter(lambda v: not v.endswith(".py"), manager.fulfilling("misc.root").values()))
+    files = list(manager.fulfilling("misc.root").values())[1:]
 
     if not files:
-        Error.fatal("Emus", "Argument Error", "parsing args", "No input specified")
+        Error.warn("Emus", "Argument Error", "parsing args", "No input specified")
+        display_help()
 
     try:
         with open(files[0]) as f:

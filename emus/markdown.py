@@ -1,4 +1,4 @@
-import interface
+from . import interface
 
 class MarkdownEmitter(interface.Emitter):
     def markdownify(self, table):

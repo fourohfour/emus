@@ -42,7 +42,7 @@
 
 }
 
-"Cereal" {
+"Favourite Cereal" {
 
 -> Charlie :: 1 => Shreddies
 -> Charlie :: 2 => Cornflakes
@@ -50,4 +50,16 @@
 -> Maggie  :: 1 => "Shredded Wheat"
 -> Maggie  :: 2 => "Frosties"
 
+}
+
+"Types of Cake" {
+   -> Chocolate::Lucy  => 1
+   -> Coffee::Lucy     => 2
+   -> Battenburg::Lucy => 3
+   -> Chocolate::Mark  => 3
+   -> Coffee::Mark     => 1
+   -> Battenburg::Mark => 2
+   -> Chocolate::Amy   => 2
+   -> Coffee::Amy      => 3
+   -> Battenburg::Amy  => 1
 }

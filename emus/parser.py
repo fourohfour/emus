@@ -1,5 +1,5 @@
-from utils import *
-from tokeniser import Token
+from .utils import *
+from .tokeniser import Token
 
 class Table:
     def __init__(self):

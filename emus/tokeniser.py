@@ -1,5 +1,5 @@
 from enum import Enum
-from utils import *
+from .utils import *
 
 class Token(Enum):
     VALUE  = 0

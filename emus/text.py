@@ -1,4 +1,4 @@
-import interface
+from . import interface
 
 class TableWidth:
     FIRST_COL = -1
