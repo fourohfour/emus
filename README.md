@@ -1,6 +1,16 @@
 # emus - Table Compiler
 
-**emus** is a utility for quickly constructing tables in a variety of formats.
+**emus** (pronounced like the antipodean bird) is a utility for quickly constructing tables in a variety of formats.
+
+## Installing emus
+
+**emus** requires `Python 3` and the respective version of `pip`.
+
+Install **emus** with the following terminal commands:
+
+    git clone https://github.com/fourohfour/emus
+    cd emus
+    pip install .
 
 ## Using emus
 
